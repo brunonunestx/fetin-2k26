@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native'
+import { View, Text, TextInput, Pressable, ScrollView, Alert, Image } from 'react-native'
 import { router } from 'expo-router'
+import * as ImagePicker from 'expo-image-picker'
 import { ChevronLeft, Camera } from 'lucide-react-native'
 
 import { cn } from '@/src/lib/utils'
@@ -29,6 +30,7 @@ const AVAILABILITY_OPTIONS = [
 const RATE_OPTIONS = ['Valor fixo', 'Por diária', 'Por hora', 'A combinar']
 
 export default function WorkerRegisterScreen() {
+  const [photo, setPhoto] = useState<string | null>(null)
   const [nome, setNome] = useState('')
   const [telefone, setTelefone] = useState('')
   const [cidade, setCidade] = useState('')
@@ -39,8 +41,34 @@ export default function WorkerRegisterScreen() {
   const [tipoValor, setTipoValor] = useState('')
   const [descricao, setDescricao] = useState('')
 
+  const isFormValid =
+    nome.trim().length > 0 &&
+    telefone.trim().length > 0 &&
+    cidade.trim().length > 0 &&
+    bairro.trim().length > 0 &&
+    tipoServico.length > 0 &&
+    disponibilidade.length > 0 &&
+    tipoValor.length > 0
+
   function toggleMulti(list: string[], item: string, set: (v: string[]) => void) {
     set(list.includes(item) ? list.filter((i) => i !== item) : [...list, item])
+  }
+
+  async function handlePickPhoto() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (status !== 'granted') {
+      Alert.alert('Permissão necessária', 'Precisamos de acesso à galeria para adicionar uma foto.')
+      return
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    })
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri)
+    }
   }
 
   return (
@@ -58,9 +86,18 @@ export default function WorkerRegisterScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="my-6 items-center">
-          <Pressable className="h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-brand-500 bg-brand-50 active:opacity-70">
-            <Camera size={28} color="#3463ff" />
-            <Text className="mt-1 text-xs text-brand-500">Adicionar foto</Text>
+          <Pressable
+            onPress={handlePickPhoto}
+            className="h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-brand-500 bg-brand-50 active:opacity-70"
+          >
+            {photo ? (
+              <Image source={{ uri: photo }} style={{ width: 96, height: 96 }} />
+            ) : (
+              <>
+                <Camera size={28} color="#3463ff" />
+                <Text className="mt-1 text-xs text-brand-500">Adicionar foto</Text>
+              </>
+            )}
           </Pressable>
           <Text className="mt-2 text-xs text-neutral-400">Opcional</Text>
         </View>
@@ -166,7 +203,12 @@ export default function WorkerRegisterScreen() {
       </ScrollView>
 
       <View className="border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
-        <Button label="Criar meu perfil" size="lg" />
+        <Button
+          label="Criar meu perfil"
+          size="lg"
+          disabled={!isFormValid}
+          onPress={() => router.replace('/(tabs)')}
+        />
       </View>
     </View>
   )

@@ -18,6 +18,13 @@ export default function ContractorRegisterScreen() {
   const [tipoPessoa, setTipoPessoa] = useState('')
   const [tipoContrato, setTipoContrato] = useState<string[]>([])
 
+  const isFormValid =
+    nome.trim().length > 0 &&
+    telefone.trim().length > 0 &&
+    cidade.trim().length > 0 &&
+    bairro.trim().length > 0 &&
+    tipoPessoa.length > 0
+
   function toggleContrato(item: string) {
     setTipoContrato((prev) =>
       prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item],
@@ -106,7 +113,12 @@ export default function ContractorRegisterScreen() {
       </ScrollView>
 
       <View className="border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
-        <Button label="Entrar no app" size="lg" />
+        <Button
+          label="Entrar no app"
+          size="lg"
+          disabled={!isFormValid}
+          onPress={() => router.replace('/(tabs)/contractor-home')}
+        />
       </View>
     </View>
   )
