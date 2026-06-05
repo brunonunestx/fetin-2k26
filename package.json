@@ -1,0 +1,19 @@
+{
+  "name": "fetin-2k26",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "dev:api": "pnpm --filter core-api start:dev",
+    "dev:mobile": "pnpm --filter mobile start"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.1.1",
+    "typescript": "^5.7.3"
+  }
+}
